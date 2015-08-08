@@ -1,0 +1,1538 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Logging</name>
+    </assembly>
+    <members>
+        <member name="T:Shinater.Logging.SimpleFormatter">
+            <summary>
+            以可读格式输出 <see cref="T:Shinater.Logging.LogRecord"/> 的简单摘要。摘要通常为 2 行。 
+            </summary>
+            <code>public class SimpleFormatter:IFormatter</code>
+            <seealso cref="T:Shinater.Logging.IFormatter"/>
+            <seealso cref="P:Shinater.Logging.Handler.Formatter"/>
+        </member>
+        <member name="T:Shinater.Logging.IFormatter">
+            <summary>
+            为格式化 <see cref="T:Shinater.Logging.LogRecord"/> 提供支持。
+            </summary>
+            <code>public interface IFormatter</code>
+            <remarks>
+            <para>
+            一般来说，每个日志记录 Handler 都有关联的 Formatter。Formatter 接受 <see cref="T:Shinater.Logging.LogRecord"/>，并将它转换为一个字符串。
+            </para>
+            </remarks>
+            <seealso cref="P:Shinater.Logging.Handler.Formatter"/>
+        </member>
+        <member name="M:Shinater.Logging.IFormatter.GetHead(System.String)">
+            <summary>
+            返回一组格式化记录的头部字符串。
+            </summary>
+            <code>string GetHead(string encoding)</code>
+            <param name="encoding">需要在头部声明的字符编码，对于一些格式（比如 XML）字符编码声明很重要。</param>
+            <returns>头部字符串。</returns>
+        </member>
+        <member name="M:Shinater.Logging.IFormatter.GetTail">
+            <summary>
+            返回一组格式化记录的尾部字符串。
+            </summary>
+            <code>string GetTail()</code>
+            <returns>尾部字符串。</returns>
+        </member>
+        <member name="M:Shinater.Logging.IFormatter.Format(Shinater.Logging.LogRecord)">
+            <summary>
+            格式化给定的日志记录，并返回格式化后的字符串。
+            </summary>
+            <code>string Format(LogRecord record)</code>
+            <param name="record">要格式化的日志记录。</param>
+            <returns>格式化的日志记录。</returns>
+            <exception cref="T:System.ArgumentNullException">给定的 LogRecord 为 null。</exception>
+        </member>
+        <member name="M:Shinater.Logging.SimpleFormatter.GetHead(System.String)">
+            <summary>
+            返回一组格式化记录的头部字符串。
+            </summary>
+            <code>public virtual string GetHead(string encoding)</code>
+            <param name="encoding">需要在头部声明的字符编码，对于一些格式（比如 XML）字符编码声明很重要。</param>
+            <returns>头部字符串。</returns>
+        </member>
+        <member name="M:Shinater.Logging.SimpleFormatter.GetTail">
+            <summary>
+            返回一组格式化记录的尾部字符串。
+            </summary>
+            <code>public virtual string GetTail()</code>
+            <returns>尾部字符串。</returns>
+        </member>
+        <member name="M:Shinater.Logging.SimpleFormatter.FormatLevel(Shinater.Logging.Level)">
+            <summary>
+            本地化和格式化给定的 <see cref="T:Shinater.Logging.Level"/>。返回当前默认语言环境的 Level 的本地化字符串名称。
+            </summary>
+            <code>protected string FormatLevel(Level level)</code>
+            <param name="level">要格式化的日志级别。</param>
+            <returns>本地化名称。</returns>
+        </member>
+        <member name="M:Shinater.Logging.SimpleFormatter.FormatMessage(Shinater.Logging.LogRecord)">
+            <summary>
+            本地化和格式化来自日志记录的消息。
+            </summary>
+            <remarks>
+            <para>
+            在 SimpleFormatter 子类执行格式化时，此方法可以作为一种便捷方法使用。
+            </para>
+            <para>
+            首先，找到 LogRecord 的源 Logger，并获取源 Logger 的 ResourceManager。
+            再通过 ResourceManager 将消息字符串本地化为格式字符串。（如果 ResourceManager 为 null，或没有找到消息键，则将该键用作格式字符串。）
+            如果 LogRecord.Parameters 不为 null，则使用 String.Format 方法进行格式化。 
+            最后，返回已本地化和格式化的消息。
+            </para>
+            </remarks>
+            <param name="record">包含原始消息的日志记录。</param>
+            <returns>已本地化和格式化的消息。</returns>
+            <code>protected string FormatMessage(LogRecord record)</code>
+        </member>
+        <member name="M:Shinater.Logging.SimpleFormatter.Format(Shinater.Logging.LogRecord)">
+            <summary>
+            格式化给定的日志记录，并返回格式化后的字符串。
+            </summary>
+            <code>public string Format(LogRecord record)</code>
+            <param name="record">要格式化的日志记录。</param>
+            <returns>格式化的日志记录。</returns>
+            <exception cref="T:System.ArgumentNullException">给定的 LogRecord 为 null。</exception>
+        </member>
+        <member name="T:Shinater.Logging.IFilter">
+            <summary>
+            可用于为记录内容提供比记录级别所提供的更细粒度的控制。
+            </summary>
+            <code>public interface IFilter</code>
+            <remarks>
+            <para>
+            每个 <see cref="T:Shinater.Logging.Logger"/> 和 <see cref="T:Shinater.Logging.Handler"/> 都可以关联一个过滤器。
+            Logger 或 Handler 可以调用 <see cref="M:Shinater.Logging.IFilter.IsLoggable(Shinater.Logging.LogRecord)"/> 方法来检查是否应该发布给定的 <see cref="T:Shinater.Logging.LogRecord"/>。
+            如果 isLoggable 返回 false，则丢弃 LogRecord。
+            </para>
+            </remarks>
+            <seealso cref="P:Shinater.Logging.Logger.Filter"/>
+            <seealso cref="P:Shinater.Logging.Handler.Filter"/>
+        </member>
+        <member name="M:Shinater.Logging.IFilter.IsLoggable(Shinater.Logging.LogRecord)">
+            <summary>
+            检查是否应该发布给定的日志记录。
+            </summary>
+            <code>bool IsLoggable(LogRecord record)</code>
+            <param name="record">一个 <see cref="T:Shinater.Logging.LogRecord"/> 对象。</param>
+            <returns>如果应该发布日志记录，则返回 true。</returns>
+        </member>
+        <member name="T:Shinater.Logging.ConsoleHandler">
+            <summary>
+            向 System.Console 发布日志记录。
+            </summary>
+            <remarks>
+            <para>
+            <strong>配置：</strong>存在配置文件的情况下，每个 ConsoleHandler 都是使用以下设置执行初始化的。
+            </para>
+            <para>
+            <pre>
+            &lt;configuration&gt;
+                &lt;appSettings&gt;
+                    <span style="color:#999">&lt;!--为 Handler 指定默认的级别。--&gt;</span>
+                    &lt;add key="Shinater.Logging.ConsoleHandler.Level" value="All" /&gt;
+                    <span style="color:#999">&lt;!--指定要使用的 Filter 的类的完全限定名。--&gt;</span>
+                    &lt;add key="Shinater.Logging.ConsoleHandler.Filter" value="" /&gt;
+                    <span style="color:#999">&lt;!--指定要使用的 Formatter 的类的完全限定名。--&gt;</span>
+                    &lt;add key="Shinater.Logging.ConsoleHandler.Formatter" value="Shinater.Logging.SimpleFormatter" /&gt;
+                &lt;/appSettings&gt;
+            &lt;/configuration&gt;
+            </pre>
+            </para>
+            </remarks>
+            <code>public class ConsoleHandler:Handler</code>
+            <seealso cref="T:Shinater.Logging.Handler"/>
+            <seealso cref="M:Shinater.Logging.Logger.AddHandler(Shinater.Logging.Handler)"/>
+            <seealso cref="M:Shinater.Logging.Logger.RemoveHandler(Shinater.Logging.Handler)"/>
+            <seealso cref="M:Shinater.Logging.Logger.GetHandlers"/>
+        </member>
+        <member name="T:Shinater.Logging.Handler">
+            <summary>
+            从 <see cref="T:Shinater.Logging.Logger"/> 中获取日志信息，并将这些信息导出。
+            </summary>
+            <code>public abstract class Handler</code>
+            <remarks>
+            <para>
+            它可将日志信息写入控制台或文件中，也可以将这些信息发送到网络日志服务中，或将其转发到操作系统日志中。
+            </para>
+            <para>
+            Handler 类通常使用 LogManager 获取日志配置来设置 Handler 的 Filter、Formatter 和 Level 的默认值。有关每个具体的 Handler 类，请参阅指定的文档。 
+            </para>
+            </remarks>
+            <seealso cref="M:Shinater.Logging.Logger.AddHandler(Shinater.Logging.Handler)"/>
+            <seealso cref="M:Shinater.Logging.Logger.RemoveHandler(Shinater.Logging.Handler)"/>
+            <seealso cref="M:Shinater.Logging.Logger.GetHandlers"/>
+        </member>
+        <member name="M:Shinater.Logging.Handler.#ctor">
+            <summary>
+            默认构造方法。
+            </summary>
+            <remarks>
+            <para>
+            得到的 Handler 具有 Level.ALL 的日志级别和 SimpleFormatter，不具有 Filter。
+            </para>
+            </remarks>
+            <code>protected Handler()</code>
+        </member>
+        <member name="M:Shinater.Logging.Handler.IsLoggable(Shinater.Logging.LogRecord)">
+            <summary>
+            检查该 Handler 是否实际记录给定的 LogRecord。
+            </summary>
+            <remarks>
+            <para>
+            该方法检查 LogRecord 是否具有适当的 Level，以及是否满足任何 Filter。
+            </para>
+            </remarks>
+            <param name="record">一个 <see cref="T:Shinater.Logging.LogRecord"/> 对象。</param>
+            <returns>如果要记录 LogRecord，则返回 true。</returns>
+            <code>public virtual bool IsLoggable(LogRecord record)</code>
+        </member>
+        <member name="M:Shinater.Logging.Handler.Publish(Shinater.Logging.LogRecord)">
+            <summary>
+            发布 <see cref="T:Shinater.Logging.LogRecord"/>。
+            </summary>
+            <code>public abstract void Publish(LogRecord record)</code>
+            <param name="record">对日志事件的描述。</param>
+        </member>
+        <member name="M:Shinater.Logging.Handler.Close">
+            <summary>
+            关闭 Handler，并释放所有相关的资源。
+            </summary>
+            <code>public abstract void Close()</code>
+            <remarks>
+            <para>
+            调用 Close 方法后，就不应再使用该 Handler。
+            </para>
+            </remarks>
+        </member>
+        <member name="P:Shinater.Logging.Handler.Level">
+            <summary>
+            获取或设置日志级别，指定该 Handler 所记录的信息级别。将放弃低于该值的信息级别。
+            </summary>
+            <value>需要记录的信息级别，默认值为 Level.All</value>
+            <code>public Level Level { get; set; }</code>
+        </member>
+        <member name="P:Shinater.Logging.Handler.Filter">
+            <summary>
+            获取或设置 <see cref="T:Shinater.Logging.IFilter"/>，以控制该 Handler 的输出。
+            </summary>
+            <value>过滤器（可以为 null），默认值为 null。</value>
+            <code>public IFilter Filter { get; set; }</code>
+        </member>
+        <member name="P:Shinater.Logging.Handler.Formatter">
+            <summary>
+            获取或设置 <see cref="T:Shinater.Logging.IFormatter"/>。Formatter 将用于格式化该 Handler 的 LogRecords。
+            </summary>
+            <value>格式化支持，默认值为 <see cref="T:Shinater.Logging.SimpleFormatter"/> 对象。</value>
+            <code>public IFormatter Formatter { get; set; }</code>
+        </member>
+        <member name="M:Shinater.Logging.ConsoleHandler.#ctor">
+            <summary>
+            默认构造方法。
+            </summary>
+            <remarks>
+            <para>
+            通过 LogManager，使用日志配置信息初始化 ConsoleHandler。 
+            </para>
+            </remarks>
+            <code>public ConsoleHandler()</code>
+        </member>
+        <member name="M:Shinater.Logging.ConsoleHandler.Publish(Shinater.Logging.LogRecord)">
+            <summary>
+            发布 <see cref="T:Shinater.Logging.LogRecord"/>。
+            </summary>
+            <code>public override void Publish(LogRecord record)</code>
+            <param name="record">对日志事件的描述。</param>
+        </member>
+        <member name="M:Shinater.Logging.ConsoleHandler.Close">
+            <summary>
+            关闭 Handler。
+            </summary>
+            <code>public override void Close()</code>
+            <remarks>
+            <para>
+            调用 Close 方法后，就不应再使用该 Handler。
+            </para>
+            </remarks>
+        </member>
+        <member name="P:Shinater.Logging.ConsoleHandler.IsClosed">
+            <summary>
+            返回 Handler 是否被关闭。
+            </summary>
+            <value>指示 Handler 是否被关闭。</value>
+        </member>
+        <member name="T:Shinater.Logging.SocketHandler">
+            <summary>
+            简单的网络日志 Handler。
+            </summary>
+            <remarks>
+            <para>
+            将 LogRecords 发布到远程主机。
+            </para>
+            <para>
+            <strong>配置：</strong>存在配置文件的情况下，每个 SocketHandler 都是使用以下设置执行初始化的。
+            </para>
+            <para>
+            <pre>
+            &lt;configuration&gt;
+                &lt;appSettings&gt;
+                    <span style="color:#999">&lt;!--为 Handler 指定默认的级别。--&gt;</span>
+                    &lt;add key="Shinater.Logging.SocketHandler.Level" value="All" /&gt;
+                    <span style="color:#999">&lt;!--指定要使用的 Filter 的类的完全限定名。--&gt;</span>
+                    &lt;add key="Shinater.Logging.SocketHandler.Filter" value="" /&gt;
+                    <span style="color:#999">&lt;!--指定要使用的 Formatter 的类的完全限定名。--&gt;</span>
+                    &lt;add key="Shinater.Logging.SocketHandler.Formatter" value="Shinater.Logging.XMLFormatter" /&gt;
+                    <span style="color:#999">&lt;!--指定要使用的字符集编码的名称。--&gt;</span>
+                    &lt;add key="Shinater.Logging.SocketHandler.Encoding" value="UTF-8" /&gt;
+                    <span style="color:#999">&lt;!--指定目标主机的IP地址。--&gt;</span>
+                    &lt;add key="Shinater.Logging.StreamHandler.Host" value="192.168.1.xx" /&gt;
+                    <span style="color:#999">&lt;!--指定目标主机的端口。--&gt;</span>
+                    &lt;add key="Shinater.Logging.StreamHandler.Port" value="4080" /&gt;
+                    <span style="color:#999">&lt;!--指定要使用的网络协议类型。--&gt;</span>
+                    &lt;add key="Shinater.Logging.StreamHandler.ProtocolType" value="Tcp" /&gt;
+                &lt;/appSettings&gt;
+            &lt;/configuration&gt;
+            </pre>
+            </para>
+            </remarks>
+            <code>public class SocketHandler:Handler,IDisposable</code>
+            <seealso cref="T:Shinater.Logging.Handler"/>
+            <seealso cref="T:Shinater.Logging.StreamHandler"/>
+            <seealso cref="M:Shinater.Logging.Logger.AddHandler(Shinater.Logging.Handler)"/>
+            <seealso cref="M:Shinater.Logging.Logger.RemoveHandler(Shinater.Logging.Handler)"/>
+            <seealso cref="M:Shinater.Logging.Logger.GetHandlers"/>
+        </member>
+        <member name="M:Shinater.Logging.SocketHandler.#ctor">
+            <summary>
+            仅通过 LogManager，使用日志配置信息创建 SocketHandler。
+            </summary>
+            <code>public SocketHandler()</code>
+            <exception cref="T:System.ArgumentException">配置文件不存在，未提供目标主机、端口号，目标主机、端口号或协议类型不支持。</exception>
+            <exception cref="T:System.Net.Sockets.SocketException">试图访问套接字时发生错误。</exception>
+            <exception cref="T:System.Security.SecurityException">调用堆栈上部的调用方无权执行所请求的操作。</exception>
+        </member>
+        <member name="M:Shinater.Logging.SocketHandler.#ctor(System.String,System.Int32)">
+            <summary>
+            构造一个带有指定主机和端口的 SocketHandler。
+            </summary>
+            <code> public SocketHandler(string host,int port)</code>
+            <param name="host">目标主机。</param>
+            <param name="port">目标端口。</param>
+            <exception cref="T:System.ArgumentException">给定的目标主机、端口号无效，或协议类型不支持。</exception>
+            <exception cref="T:System.Net.Sockets.SocketException">试图访问套接字时发生错误。</exception>
+            <exception cref="T:System.Security.SecurityException">调用堆栈上部的调用方无权执行所请求的操作。</exception>
+        </member>
+        <member name="M:Shinater.Logging.SocketHandler.#ctor(System.String,System.Int32,System.Net.Sockets.ProtocolType)">
+            <summary>
+            构造一个带有指定主机、端口和协议类型（TCP 或 UDP）的 SocketHandler。
+            </summary>
+            <param name="host">目标主机。</param>
+            <param name="port">目标端口。</param>
+            <param name="protocolType">协议类型，TCP 或 UDP。</param>
+            <exception cref="T:System.ArgumentException">给定的目标主机、端口号无效，或协议类型不支持。</exception>
+            <exception cref="T:System.Net.Sockets.SocketException">试图访问套接字时发生错误。</exception>
+            <exception cref="T:System.Security.SecurityException">调用堆栈上部的调用方无权执行所请求的操作。</exception>
+            <code>public SocketHandler(string host, int port, ProtocolType protocolType)</code>
+        </member>
+        <member name="M:Shinater.Logging.SocketHandler.Publish(Shinater.Logging.LogRecord)">
+            <summary>
+            发布 <see cref="T:Shinater.Logging.LogRecord"/>。
+            </summary>
+            <code>public override void Publish(LogRecord record)</code>
+            <param name="record">对日志事件的描述。</param>
+        </member>
+        <member name="M:Shinater.Logging.SocketHandler.Close">
+            <summary>
+            关闭 Handler 及其 Socket 连接，并释放所有相关的资源。
+            </summary>
+            <code>public override void Close()</code>
+            <remarks>
+            <para>
+            该 Handler 实现了 IDisposable，此方法内部调用了 Dispose 方法。
+            </para>
+            <para>
+            调用 Close 方法后，就不应再使用该 Handler。
+            </para>
+            </remarks>
+        </member>
+        <member name="M:Shinater.Logging.SocketHandler.Dispose">
+            <summary>
+            关闭 Handler 及其 Socket 连接，并释放所有相关的资源。
+            </summary>
+            <code>public void Dispose()</code>
+        </member>
+        <member name="P:Shinater.Logging.SocketHandler.Encoding">
+            <summary>
+            获取或设置该 Handler 所用的字符编码。
+            应在将任何 LogRecords 写入 Handler 之前设置编码。
+            </summary>
+            <value>Handler 所用的字符编码，默认值为 System.Text.Encoding.UTF8。</value>
+            <code>public Encoding Encoding { get; set; }</code>
+        </member>
+        <member name="P:Shinater.Logging.SocketHandler.IsClosed">
+            <summary>
+            返回 Handler 是否被关闭，如果被关闭， <see cref="T:Shinater.Logging.LogRecord"/> 关联的 Logger 就不会再使用该 Handler。
+            </summary>
+            <value>指示 Handler 是否被关闭。</value>
+            <code>public bool IsClosed { get; protected set; }</code>
+        </member>
+        <member name="T:Shinater.Logging.Logger">
+            <namespace>
+            <summary>
+            提供类似 Java<SUP>TM</SUP> 2 平台核心日志工具的类和接口，以异步方式记录日志信息。
+            </summary>
+            <remarks>
+            <para>
+            此命名空间的关键元素包括：
+            </para>
+            <list type="bullet">
+                <item>
+                    <term>Logger：</term>
+            		<description>应用程序进行 logging 调用的主要实体。Logger 对象用来记录特定系统或应用程序组件的日志消息。</description>
+            	</item>
+            	<item>
+            	    <term>LogRecord：</term>
+            		<description>用于在 logging 框架和单独的日志处理程序之间传递 logging 请求。</description>
+            	</item>
+            	<item>
+            	    <term>Handler：</term>
+            		<description>LogRecord 对象导出到各种目的地，包括内存、输出流、控制台、文件和套接字。为此有各种的 Handler 子类。</description>
+            	</item>
+            	<item>
+            	    <term>Level：</term>
+            		<description>定义一组可以用来控制 logging 输出的标准 logging 级别。可以配置程序为某些级别输出 logging，而同时忽略其他输出。</description>
+            	</item>
+            	<item>
+            	    <term>IFilter：</term>
+            		<description>为所记录的日志提供日志级别控制以外的细粒度控制。</description>
+            	</item>
+            	<item>
+            	    <term>Formatter：</term>
+            		<description>为格式化 LogRecord 对象提供支持。此包包括的两个格式化程序 SimpleFormatter 和 XMLFormatter 分别用于格式化纯文本或 XML 中的日志记录。</description>
+            	</item>
+            </list>
+            </remarks>
+            </namespace>
+            <summary>
+            Logger 对象用来记录特定系统或应用程序组件的日志消息。
+            </summary>
+            <code>public class Logger</code>
+            <remarks>
+            <para>
+            Logger 名称可以是任意的非空字符串，但是它们一般应该基于被记录组件类名，如 Shinater.Logging.Logger。
+            </para>
+            <para>
+            可通过调用 GetLogger 静态方法来获得 Logger 对象。这些方法要么创建一个新 Logger，要么返回一个现有 Logger。
+            </para>
+            <para>
+            每个 Logger 都有一个与其相关的 "Level"。这反映了此 Logger 所关心的最低 <see cref="T:Shinater.Logging.Level"/>。
+            对于每次日志记录调用，Logger 最初都依照相关日志级别对请求级别（例如 Level.Warning）进行简单的检查。如果请求级别低于日志级别，则立即返回日志记录调用。 
+            </para>
+            <para>
+            通过此初始（简单）测试后，Logger 将分配一个 <see cref="T:Shinater.Logging.LogRecord"/> 来描述日志记录消息。
+            接着调用 Filter（如果存在）进行更详细的检查，以确定是否应该发布该记录。如果检查通过，则将 <see cref="T:Shinater.Logging.LogRecord"/> 发布到其输出 <see cref="T:Shinater.Logging.Handler"/>。
+            </para>
+            <para>
+            每个 Logger 都可以有一个与其关联的 ResourceManager，用于本地化日志消息。
+            大多数 Logger 输出方法都带有 "message" 参数。此参数可以是一个原始值，也可以是一个本地化的键。
+            在格式化期间，如果 Logger 关联一个 ResourceManager，并且 ResourceManager 包含 message 字符串的映射关系，那么用本地化值替换该字符串。否则使用原来的字符串。
+            </para>
+            <para>
+            格式化（包括本地化）是输出 <see cref="T:Shinater.Logging.Handler"/> 的责任，它通常会调用格式化程序。 
+            格式化程序会使用 String.Format 方法格式化带有参数的字符串。
+            </para>
+            <para>
+            <strong>关于 Logger 的“父”：</strong>
+            每个 Logger 都跟踪一个父 Logger，也就是 Logger 命名空间中与其最近的现有祖先。
+            例如：一个 Logger 名为 "A.B.C"，并且已经创建了一个名为 "A" 的 Logger，但是不存在名为 "A.B" 的 Logger，那么对 Logger "A.B.C" 调用 GetParent 将返回 Logger "A"。
+            根 Logger（通过 <see cref="M:Shinater.Logging.Logger.GetRootLogger"/> 方法获取）是所有 Logger 的祖先。如果对上例中的 Logger "A" 调用 GetParent 将返回根 Logger。
+            如果将 Logger 的属性 <see cref="P:Shinater.Logging.Logger.UseParentLevel"/> 设置为 true，那么它的有效级别将继承自父亲，这可以通过其父亲一直沿树向上递归得到。
+            在默认情况下，Logger 将 LogRecord 发布到其输出 Handler 的同时，也将 LogRecord 沿树递推发布到其父的 Handler。
+            如果一个 Logger 没有自己的 ResourceManager，则它将通过其父亲沿树递归继承 ResourceManager。
+            可以看出，通过根 Logger 可以轻松的控制运行环境中的所有 Logger。
+            例如：Logger.GetRootLogger().AddHandler(new ConsoleHandler()); 可以将所有的日志消息都输出到控制台。
+            </para>
+            <para>
+            注意，将 <see cref="T:Shinater.Logging.LogRecord"/> 发布到其输出 <see cref="T:Shinater.Logging.Handler"/> 不必同步发生。它可以延迟，每次日志记录调用都会立即返回。 
+            如果此后，Handler 处理 LogRecord 时引发任何异常，该 Handler 将会被强制关闭。
+            </para>
+            <para>
+            Logger 上执行的所有方法都是多线程安全的。
+            </para>
+            </remarks>
+            <example>
+            <para>下面的示例演示了日志记录的基本用法。</para>
+            <code>
+            using System;
+            using Shinater.Logging;
+            
+            public class Example {
+               public static void Main() {
+                   Logger logger = Logger.GetLogger("Example");
+                   logger.Level = Level.Info;
+                   Logger logger2 = Logger.GetLogger("Example.File");
+                   logger2.AddHandler(new FileHandler("D:/%d.log"));
+                   Logger.GetRootLogger().AddHandler(new ConsoleHandler());
+                   //由于 Level.Fine &lt; Level.Info 系统会过滤该消息。
+                   logger.Log(Level.Fine, "Level.Fine 级别的测试消息。");
+                   logger.Log(Level.Warning, "Level.Warning 级别的测试消息。");
+                   //记录 Level.Severe 级别消息的便捷方法。 
+                   logger2.Severe("Level.Severe 级别的测试消息。");
+               }
+            }
+            /* 此示例在控制台输出以下内容，同时在 D 盘创建了文件 "2009-03-14.log"。
+            2009/3/14 11:11:17 Example Main
+            警告: Level.Warning 级别的测试消息。
+            2009/3/14 11:11:17 Example Main
+            严重: Level.Severe 级别的测试消息。
+            */
+            </code>
+            </example>
+        </member>
+        <member name="M:Shinater.Logging.Logger.GetRootLogger">
+            <summary>
+            返回根 Logger。
+            </summary>
+            <code>public static Logger GetRootLogger()</code>
+            <returns>根 Logger，即所有 Logger 的祖先。</returns>
+        </member>
+        <member name="M:Shinater.Logging.Logger.GetLogger(System.String)">
+            <summary>
+            查找或创建一个指定名称的 Logger。
+            如果已经创建了具有给定名称的 Logger，则返回该 Logger。否则创建一个新的 Logger。
+            </summary>
+            <code>public static Logger GetLogger(string name)</code>
+            <param name="name">Logger 的名称,不可为空。</param>
+            <returns>适合的 Logger。</returns>
+            <exception cref="T:System.ArgumentNullException">指定的名称为空。</exception>
+        </member>
+        <member name="M:Shinater.Logging.Logger.GetLogger(System.String,System.Resources.ResourceManager)">
+            <summary>
+            查找或创建一个指定名称和 ResourceManager 的 Logger。
+            如果已经创建了具有给定名称的 Logger，则返回该 Logger。否则创建一个新的 Logger。
+            </summary>
+            <code>
+            public static Logger GetLogger(string name, ResourceManager resource)
+            </code>
+            <param name="name">Logger 的名称,不可为空。</param>
+            <param name="resource">用于本地化日志消息的 ResourceManager，可以为 null。</param>
+            <returns>适合的 Logger。</returns>
+            <exception cref="T:System.ArgumentNullException">指定的名称为空。</exception>
+        </member>
+        <member name="M:Shinater.Logging.Logger.#ctor(System.String,System.Resources.ResourceManager)">
+            <summary>
+            构造一个指定名称和 ResourceManager 的 Logger 。
+            </summary>
+            <code>private Logger(string name,ResourceManager resource)</code>
+            <param name="name">Logger 的名称,不可为空。</param>
+            <param name="resource">用于本地化日志消息的 ResourceManager，可以为 null。</param>
+            <exception cref="T:System.ArgumentNullException">指定的名称为空。</exception>
+        </member>
+        <member name="M:Shinater.Logging.Logger.AddHandler(Shinater.Logging.Handler)">
+            <summary>
+            添加一个日志 Handler 以接收日志记录消息。
+            </summary>
+            <code>
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            public void AddHandler(Handler handler)
+            </code>
+            <param name="handler">日志记录 Handler。</param>
+            <exception cref="T:System.ArgumentNullException">给定的日志记录 Handler 为 null。</exception>
+        </member>
+        <member name="M:Shinater.Logging.Logger.RemoveHandler(Shinater.Logging.Handler)">
+            <summary>
+            移除一个日志 Handler。
+            </summary>
+            <code>
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            public void RemoveHandler(Handler handler)
+            </code>
+            <param name="handler">日志记录 Handler。</param>
+        </member>
+        <member name="M:Shinater.Logging.Logger.GetHandlers">
+            <summary>
+            获得与此 logger 相关的所有 Handler。
+            </summary>
+            <code>public Handler[] GetHandlers()</code>
+            <returns>一组已注册的 Handler。</returns>
+        </member>
+        <member name="M:Shinater.Logging.Logger.GetResourceManager">
+            <summary>
+            获取用于本地化日志消息的 ResourceManager。
+            注意，如果结果为 null，则 Logger 将使用从其父亲继承的 ResourceManager。 
+            </summary>
+            <code>public System.Resources.ResourceManager GetResourceManager()</code>
+            <returns>用于本地化日志消息的 ResourceManager（可能为 null）。</returns>
+        </member>
+        <member name="M:Shinater.Logging.Logger.GetParent">
+            <summary>
+            返回此 Logger 的父 Logger。 
+            </summary>
+            <remarks>
+            <para>
+            此方法返回命名空间中最近的现存父亲。
+            因此，一个 Logger 名为 "A.B.C"，并且已经创建了一个名为 "A" 的 Logger，但是不存在名为 "A.B" 的 Logger，那么对 Logger "A.B.C" 调用 GetParent 将返回 Logger "A"。
+            </para>
+            <para>
+            如果根 Logger 调用该方法，则结果为 null。
+            </para>
+            </remarks>
+            <code>public Logger GetParent()</code>
+            <returns>最近的现有父 Logger。</returns>
+        </member>
+        <member name="M:Shinater.Logging.Logger.IsLoggable(Shinater.Logging.Level)">
+            <summary>
+            检查给定级别的消息实际上是否由此 logger 记录。
+            </summary>
+            <code>public bool IsLoggable(Level level)</code>
+            <param name="level">消息日志记录的级别。</param>
+            <returns>如果当前正在记录给定的消息级别，则返回 true。</returns>
+        </member>
+        <member name="M:Shinater.Logging.Logger.Log(Shinater.Logging.Level,System.String)">
+            <summary>
+            记录一条消息。
+            </summary>
+            <code>public void Log(Level level, string message)</code>
+            <param name="level">给定的消息级别。</param>
+            <param name="message">字符串消息（或消息类别中的键）。</param>
+            <remarks>
+            <para>
+            如果当前对于给定的消息级别而言 Logger 是启用的，那么将给定的消息转发到所有已注册的输出 Handler 对象。
+            </para>
+            </remarks>
+        </member>
+        <member name="M:Shinater.Logging.Logger.Log(Shinater.Logging.Level,System.String,System.Object)">
+            <summary>
+            记录带有一个对象参数的消息。 
+            </summary>
+            <remarks>
+            <para>
+            如果当前对于给定的消息级别而言 logger 是启用的，则创建相应的 LogRecord 并转发到所有已注册的输出 Handler 对象。 
+            </para>
+            </remarks>
+            <code>public void Log(Level level, string message, object param)</code>
+            <param name="level">给定的消息级别。</param>
+            <param name="message">字符串消息（或消息类别中的键）。</param>
+            <param name="param">消息的参数。</param>
+        </member>
+        <member name="M:Shinater.Logging.Logger.Log(Shinater.Logging.Level,System.String,System.Object[])">
+            <summary>
+            记录带有一组对象参数的消息。
+            </summary>
+            <remarks>
+            <para>
+            如果当前对于给定的消息级别而言 logger 是启用的，则创建相应的 LogRecord 并转发到所有已注册的输出 Handler 对象。 
+            </para>
+            </remarks>
+            <code>public void Log(Level level, string message, object[] paramArray)</code>
+            <param name="level">给定的消息级别。</param>
+            <param name="message">字符串消息（或消息类别中的键）。</param>
+            <param name="paramArray">消息的一组参数。</param>
+        </member>
+        <member name="M:Shinater.Logging.Logger.Severe(System.String)">
+            <summary>
+            记录一条 Severe 消息。
+            <remarks>
+            <para>
+            如果当前对于给定的消息级别而言 Logger 是启用的，那么将给定的消息转发到所有已注册的输出 Handler 对象。
+            </para>
+            </remarks>
+            </summary>
+            <code>public void Severe(string message)</code>
+            <param name="message">字符串消息（或消息类别中的键）。</param>
+        </member>
+        <member name="M:Shinater.Logging.Logger.Warning(System.String)">
+            <summary>
+            记录一条 Warning 消息。
+            </summary>
+            <remarks>
+            <para>
+            如果当前对于给定的消息级别而言 Logger 是启用的，那么将给定的消息转发到所有已注册的输出 Handler 对象。
+            </para>
+            </remarks>
+            <code>public void Warning(string message)</code>
+            <param name="message">字符串消息（或消息类别中的键）。</param>
+        </member>
+        <member name="M:Shinater.Logging.Logger.Config(System.String)">
+            <summary>
+            记录一条 Config 消息。
+            </summary>
+            <remarks>
+            <para>
+            如果当前对于给定的消息级别而言 Logger 是启用的，那么将给定的消息转发到所有已注册的输出 Handler 对象。
+            </para>
+            </remarks>
+            <code>public void Config(string message)</code>
+            <param name="message">字符串消息（或消息类别中的键）。</param>
+        </member>
+        <member name="M:Shinater.Logging.Logger.Info(System.String)">
+            <summary>
+            记录一条 Info 消息。
+            </summary>
+            <remarks>
+            <para>
+            如果当前对于给定的消息级别而言 Logger 是启用的，那么将给定的消息转发到所有已注册的输出 Handler 对象。
+            </para>
+            </remarks>
+            <code>public void Info(string message)</code>
+            <param name="message">字符串消息（或消息类别中的键）。</param>
+        </member>
+        <member name="M:Shinater.Logging.Logger.Fine(System.String)">
+            <summary>
+            记录一条 Fine 消息。
+            </summary>
+            <remarks>
+            <para>
+            如果当前对于给定的消息级别而言 Logger 是启用的，那么将给定的消息转发到所有已注册的输出 Handler 对象。
+            </para>
+            </remarks>
+            <code>public void Fine(string message)</code>
+            <param name="message">字符串消息（或消息类别中的键）。</param>
+        </member>
+        <member name="M:Shinater.Logging.Logger.Finer(System.String)">
+            <summary>
+            记录一条 Finer 消息。
+            </summary>
+            <remarks>
+            <para>
+            如果当前对于给定的消息级别而言 Logger 是启用的，那么将给定的消息转发到所有已注册的输出 Handler 对象。
+            </para>
+            </remarks>
+            <code>public void Finer(string message)</code>
+            <param name="message">字符串消息（或消息类别中的键）。</param>
+        </member>
+        <member name="M:Shinater.Logging.Logger.Finest(System.String)">
+            <summary>
+            记录一条 Finest 消息。 
+            </summary>
+            <remarks>
+            <para>
+            如果当前对于给定的消息级别而言 Logger 是启用的，那么将给定的消息转发到所有已注册的输出 Handler 对象。
+            </para>
+            </remarks>
+            <code>public void Finest(string message)</code>
+            <param name="message">字符串消息（或消息类别中的键）。</param>
+        </member>
+        <member name="M:Shinater.Logging.Logger.Log(Shinater.Logging.LogRecord)">
+            <summary>
+            记录一条 LogRecord。
+            </summary>
+            <code>public void Log(LogRecord record)</code>
+            <param name="record">要发布的 LogRecord。</param>
+            <exception cref="T:System.ArgumentNullException">给定的 LogRecord 为 null。</exception>
+            <remarks>
+            <para>
+            如果当前对于给定的消息级别而言 Logger 是启用的，那么将给定的消息转发到所有已注册的输出 Handler 对象。
+            </para>
+            <para>
+            此类中的其他所有日志记录方法都调用此方法以实际执行所有日志记录操作。
+            </para>
+            </remarks>
+        </member>
+        <member name="P:Shinater.Logging.Logger.Name">
+            <summary>
+            获取此 Logger 的名称。
+            </summary>
+            <value>Logger 的名称。</value>
+            <code>public string Name { get; private set; }</code>
+        </member>
+        <member name="P:Shinater.Logging.Logger.Level">
+            <summary>
+            获取或设置为此 Logger 指定的日志级别（Level）。
+            </summary>
+            <remarks>
+            <para>
+            Logger 将丢弃低于此消息级别的 <see cref="T:Shinater.Logging.LogRecord"/>。可以使用级别 Level.OFF 来关闭日志记录。
+            </para>
+            <para>
+            如果 UseParentLevel 属性为 true，则返回它最近的祖先（UseParentLevel 属性为 false）的级别，而忽略此值的设置。
+            </para>
+            <para>
+            设置 Level 的同时，UseParentLevel 属性会被自动设置为 false。
+            </para>
+            </remarks>
+            <value>指定的日志级别（Level）。</value>
+            <code>public Level Level { get; set; }</code>
+        </member>
+        <member name="P:Shinater.Logging.Logger.Filter">
+            <summary>
+            获取或设置过滤器以控制此 Logger 的输出。
+            </summary>
+            <value>通过初始的“级别”检查之后，Logger 将调用此 Filter 以检查是否确实应该发布某个日志记录。</value>
+            <code>public IFilter Filter { get; set; }</code>
+        </member>
+        <member name="P:Shinater.Logging.Logger.UseParentLevel">
+            <summary>
+            获取或设置此 Logger 是否继承其父的日志级别（Level）。
+            </summary>
+            <remarks>
+            这意味着 Level 属性将返回它最近的祖先（UseParentLevel 属性为 false）的级别。
+            </remarks>
+            <value>如果要继承其父的日志级别，则为 true；否则为 false。</value>
+            <code>public bool UseParentLevel { get; set; }</code>
+        </member>
+        <member name="P:Shinater.Logging.Logger.UseParentHandlers">
+            <summary>
+            获取或设置此 Logger 是否应该将其输出发送到它的父 Logger。
+            </summary>
+            <remarks>
+            这意味着任何 LogRecord 都将被写入到其父 Handler，并且可能是祖父 Handler，一直递归到根 Logger。 
+            </remarks>
+            <value>如果要将输出发送到其父 Logger，则为 true；否则为 false。</value>
+            <code>public bool UseParentHandlers { get; set; }</code>
+        </member>
+        <member name="T:Shinater.Logging.XMLFormatter">
+            <summary>
+            将 LogRecord 格式化为标准 XML 格式。
+            </summary>
+            <remarks>
+            <para>
+            XMLFormatter 可用于任意字符编码，但是建议一般用于 UTF-8。
+            字符编码可以在输出 Handler 中设置。
+            </para>
+            </remarks>
+            <code>public class XMLFormatter : SimpleFormatter</code>
+        </member>
+        <member name="M:Shinater.Logging.XMLFormatter.GetHead(System.String)">
+            <summary>
+            返回一组 XML 格式记录的头部字符串。
+            </summary>
+            <code>public override string GetHead(string encoding)</code>
+            <param name="encoding">需要在头部声明的字符编码。</param>
+            <returns>有效的 XML 字符串。</returns>
+        </member>
+        <member name="M:Shinater.Logging.XMLFormatter.GetTail">
+            <summary>
+            返回一组 XML 格式记录的尾部字符串。
+            </summary>
+            <code>public override string GetTail()</code>
+            <returns>有效的 XML 字符串。</returns>
+        </member>
+        <member name="M:Shinater.Logging.XMLFormatter.Format(Shinater.Logging.LogRecord)">
+            <summary>
+            将给定消息格式化为 XML。
+            </summary>
+            <code>public new string Format(LogRecord record)</code>
+            <param name="record">要格式化的日志记录。</param>
+            <returns>已格式化的日志记录。</returns>
+            <exception cref="T:System.ArgumentNullException">给定的 LogRecord 为 null。</exception>
+        </member>
+        <member name="M:Shinater.Logging.XMLFormatter.AppendEscape(System.Text.StringBuilder,System.String)">
+            <summary>
+            转义 XML 字符。
+            </summary>
+            <param name="sb">StringBuilder</param>
+            <param name="text">源字符串</param>
+        </member>
+        <member name="T:Shinater.Logging.StreamHandler">
+            <summary>
+            基于流的日志 Handler。 
+            </summary>
+            <remarks>
+            <para>
+            此类主要作为基类，将 LogRecords 发布到给定 System.IO.Stream。
+            </para>
+            <para>
+            <strong>配置：</strong>存在配置文件的情况下，每个 StreamHandler 都是使用以下设置执行初始化的。
+            </para>
+            <para>
+            <pre>
+            &lt;configuration&gt;
+                &lt;appSettings&gt;
+                    <span style="color:#999">&lt;!--为 Handler 指定默认的级别。--&gt;</span>
+                    &lt;add key="Shinater.Logging.StreamHandler.Level" value="All" /&gt;
+                    <span style="color:#999">&lt;!--指定要使用的 Filter 的类的完全限定名。--&gt;</span>
+                    &lt;add key="Shinater.Logging.StreamHandler.Filter" value="" /&gt;
+                    <span style="color:#999">&lt;!--指定要使用的 Formatter 的类的完全限定名。--&gt;</span>
+                    &lt;add key="Shinater.Logging.StreamHandler.Formatter" value="Shinater.Logging.SimpleFormatter" /&gt;
+                    <span style="color:#999">&lt;!--指定要使用的字符集编码的名称。--&gt;</span>
+                    &lt;add key="Shinater.Logging.StreamHandler.Encoding" value="UTF-8" /&gt;
+                    <span style="color:#999">&lt;!--指定是否应该在每次 &lt;see cref="Publish"/&gt; 消息之后，将缓冲消息刷新到基础流。--&gt;</span>
+                    &lt;add key="Shinater.Logging.StreamHandler.AutoFlush" value="true" /&gt;
+                &lt;/appSettings&gt;
+            &lt;/configuration&gt;
+            </pre>
+            </para>
+            </remarks>
+            <code>public class StreamHandler:Handler,IDisposable</code>
+            <seealso cref="T:Shinater.Logging.Handler"/>
+            <seealso cref="M:Shinater.Logging.Logger.AddHandler(Shinater.Logging.Handler)"/>
+            <seealso cref="M:Shinater.Logging.Logger.RemoveHandler(Shinater.Logging.Handler)"/>
+            <seealso cref="M:Shinater.Logging.Logger.GetHandlers"/>
+        </member>
+        <member name="M:Shinater.Logging.StreamHandler.#ctor">
+            <summary>
+            创建不带基础流的 StreamHandler。
+            </summary>
+            <code>public StreamHandler()</code>
+        </member>
+        <member name="M:Shinater.Logging.StreamHandler.#ctor(System.IO.Stream,System.Text.Encoding)">
+            <summary>
+            创建带有基础流，并使用指定字符编码的 StreamHandler。
+            </summary>
+            <param name="stream">基础流。</param>
+            <param name="encoding">使用的字符编码。</param>
+            <code>public StreamHandler(Stream stream, Encoding encoding)</code>
+        </member>
+        <member name="M:Shinater.Logging.StreamHandler.IsLoggable(Shinater.Logging.LogRecord)">
+            <summary>
+            检查该 Handler 是否实际记录给定的 LogRecord。
+            </summary>
+            <remarks>
+            <para>
+            如果尚未分配任何基础流或 LogRecord 为 Null，则返回 false。
+            </para>
+            <para>
+            该方法检查 LogRecord 是否具有适当的 Level，以及是否满足任何 Filter。
+            </para>
+            </remarks>
+            <param name="record">一个 <see cref="T:Shinater.Logging.LogRecord"/> 对象。</param>
+            <returns>如果要记录 LogRecord，则返回 true。</returns>
+            <code>public override bool IsLoggable(LogRecord record)</code>
+        </member>
+        <member name="M:Shinater.Logging.StreamHandler.Publish(Shinater.Logging.LogRecord)">
+            <summary>
+            格式化并发布 <see cref="T:Shinater.Logging.LogRecord"/>。
+            </summary>
+            <remarks>
+            <para>
+            首先检查是否存在 Stream 以及给定的 LogRecord 是否具有所需的最低日志级别。
+            </para>
+            <para>
+            如果没有则默认返回。如果有，则调用所有关联的 Filter 来检查是否应该发布该记录。
+            </para>
+            <para>
+            如果应该发布，则调用 Formatter 来格式化该记录，然后将结果写入当前输出流。
+            </para>
+            <para>
+            如果这是要写入给定 Stream 的第一个 LogRecord，则在写入 LogRecord 之前首先将 Formatter 的“头部”字符串写入流。
+            </para>
+            </remarks>
+            <code>
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            public override void Publish(LogRecord record)
+            </code>
+            <param name="record">对日志事件的描述。</param>
+        </member>
+        <member name="M:Shinater.Logging.StreamHandler.Flush">
+            <summary>
+            刷新所有缓冲消息。
+            </summary>
+            <code>
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            public void Flush()
+            </code>
+        </member>
+        <member name="M:Shinater.Logging.StreamHandler.Close">
+            <summary>
+            关闭 Handler，并释放所有相关的资源。
+            </summary>
+            <code>public override void Close()
+            </code>
+            <remarks>
+            <para>
+            在关闭前，将 Formatter 的“尾部”字符串写入流。
+            此外，如果尚未将 Formatter 的“头部”字符串写入流，则将其写入“尾部”字符串之前。
+            </para>
+            <para>
+            该 Handler 实现了 IDisposable，此方法内部调用了 Dispose 方法。
+            </para>
+            </remarks>
+        </member>
+        <member name="M:Shinater.Logging.StreamHandler.Dispose">
+            <summary>
+            关闭 Handler，并释放所有相关的资源。
+            </summary>
+            <code>public void Dispose()</code>
+        </member>
+        <member name="M:Shinater.Logging.StreamHandler.Dispose(System.Boolean)">
+            <summary>
+            释放由 Handler 占用的非托管资源，还可以另外再释放托管资源。
+            </summary>
+            <param name="disposing">为 true 则释放托管资源和非托管资源；为 false 则仅释放非托管资源。</param>
+            <code>private void Dispose(bool disposing)</code>
+        </member>
+        <member name="P:Shinater.Logging.StreamHandler.Encoding">
+            <summary>
+            获取或设置该 Handler 所用的字符编码。
+            </summary>
+            <remarks>
+            应在将任何 LogRecords 写入 Handler 之前设置编码。
+            </remarks>
+            <value>Handler 所用的字符编码，默认值为 System.Text.Encoding.UTF8。</value>
+            <code>public virtual Encoding { get; set; }</code>
+        </member>
+        <member name="P:Shinater.Logging.StreamHandler.AutoFlush">
+            <summary>
+            获取或设置该 Handler 是否在每次 <see cref="M:Shinater.Logging.StreamHandler.Publish(Shinater.Logging.LogRecord)"/> 消息之后，将缓冲消息刷新到基础流。
+            </summary>
+            <value>自动将缓冲消息刷新到基础流，则为 true；否则为 false。默认值为 true。</value>
+            <code>public virtual bool AutoFlush { get; set; }</code>
+        </member>
+        <member name="P:Shinater.Logging.StreamHandler.BaseStream">
+            <summary>
+            获取或更改基础流。 
+            </summary>
+            <remarks>
+            <para>
+            更改基础流时，如果已存在基础流，则编写 Formatter 的尾部字符串，刷新并关闭流。
+            然后使用新的基础流替换该基础流。
+            </para>
+            </remarks>
+            <value>基础流。</value>
+            <code>protected Stream BaseStream</code>
+        </member>
+        <member name="P:Shinater.Logging.StreamHandler.IsClosed">
+            <summary>
+            返回 Handler 是否被关闭，如果被关闭，就应该忽略传入的任何 LogRecord。
+            </summary>
+            <value>指示 Handler 是否被关闭。</value>
+            <code>protected bool IsClosed { get; protected set; }</code>
+        </member>
+        <member name="T:Shinater.Logging.LogManager">
+            <summary>
+            存在一个单一的全局 LogManager 对象，用于储存 Logger 和配置该 Logger 的默认属性。
+            </summary>
+            <remarks>
+            <para>
+            此外，LogManager 还提供日志配置的键-值对。Handler 及其他日志对象可以使用它们实现自我配置。
+            </para>
+            <para>
+            可以使用 LogManager.GetLogManager() 检索全局 LogManager 对象。LogManager 对象是在第一次被获取时创建的，过后便不能更改。 
+            </para>
+            <para>
+            默认情况下，LogManager 从应用程序同一目录中的配置文件 "Logging.config" 中读取初始配置。如果编辑该属性文件，则可更改默认日志配置。 
+            </para>
+            <para>
+            配置文件的内容如下：
+            </para>
+            <para>
+            <pre>
+            &lt;?xml version="1.0" encoding="utf-8"?&gt;
+            &lt;configuration&gt;
+                &lt;appSettings&gt;
+                    <span style="color:#999">&lt;!--为根 Logger 定义日志级别。--&gt;</span>
+                    &lt;add key="Root.Level" value="Info" /&gt;
+                    <span style="color:#999">&lt;!--为根 Logger 添加日志 Handler。它们必须是具有默认构造方法的 Handler 类。注意，非基础类型的值都必须使用类型的完全限定名。--&gt;</span>
+                    &lt;add key="Root.Handlers" value="Shinater.Logging.ConsoleHandler" /&gt;
+                    <span style="color:#999">&lt;!--为名称为 "Foo" 的 Logger 定义日志级别。--&gt;</span>
+                    &lt;add key="Foo.Level" value="Warning" /&gt;
+                    <span style="color:#999">&lt;!--指示名称为 "Foo" 的 Logger 是否继承其父的日志级别。--&gt;</span>
+                    &lt;add key="Foo.UseParentLevel" value="false" /&gt;
+                    <span style="color:#999">&lt;!--为名称为 "Foo" 的 Logger 添加多个日志 Handler。它们必须是以逗号或空格分隔的。--&gt;</span>
+                    &lt;add key="Foo.Handlers" value="Shinater.Logging.ConsoleHandler,Shinater.Logging.FileHandler" /&gt;
+                    <span style="color:#999">&lt;!--指示名称为 "Foo" 的 Logger 是否应该将其输出发送到它的父 Logger。--&gt;</span>
+                    &lt;add key="Foo.UseParentHandlers" value="false" /&gt;
+                    <span style="color:#999">&lt;!--为名称为 "Foo" 的 Logger 定义过滤器。注意，引用到外部类型时，可以在它的完全限定名前加上放入括号 "()" 中的程序集名称。--&gt;</span>
+                    &lt;add key="Foo.Filter" value="(XAssembly)XNamespace.XFilter" /&gt;
+                    <span style="color:#999">&lt;!--为 Handler 定义默认属性：--&gt;</span>
+                    <span style="color:#999">&lt;!--为控制台 Handler 定义日志级别、格式化处理程序。--&gt;</span>
+                    &lt;add key="Shinater.Logging.ConsoleHandler.Level" value="All" /&gt;
+                    &lt;add key="Shinater.Logging.ConsoleHandler.Formatter" value="Shinater.Logging.SimpleFormatter" /&gt;
+                    <span style="color:#999">&lt;!--为文件 Handler 定义文件名模式、字符编码。--&gt;</span>
+                    &lt;add key="Shinater.Logging.FileHandler.Pattern" value="%d.log" /&gt;
+                    &lt;add key="Shinater.Logging.FileHandler.Encoding" value="UTF-8" /&gt;
+                    <span style="color:#999">&lt;!--为网络 Handler 定义目标主机、端口、网络协议。--&gt;</span>
+                    &lt;add key="Shinater.Logging.SocketHandler.Host" value="192.168.1.xx" /&gt;
+                    &lt;add key="Shinater.Logging.SocketHandler.Port" value="4080" /&gt;
+                    &lt;add key="Shinater.Logging.SocketHandler.ProtocolType" value="Tcp" /&gt;
+                &lt;/appSettings&gt;
+            &lt;/configuration&gt;
+            </pre>
+            </para>
+            <para>
+            LogManager 对象上的所有方法都是多线程安全的。
+            </para>
+            </remarks>
+            <code>public class LogManager</code>
+        </member>
+        <member name="M:Shinater.Logging.LogManager.GetLogManager">
+            <summary>
+            返回全局 LogManager 对象。
+            </summary>
+            <returns>全局 LogManager 对象</returns>
+            <code>public static LogManager GetLogManager()</code>
+        </member>
+        <member name="M:Shinater.Logging.LogManager.AddLogger(Shinater.Logging.Logger)">
+            <summary>
+            添加指定的 Logger。
+            </summary>
+            <remarks>
+            <para>
+            如果已经注册了具有相同名称的 Logger，则不执行任何操作而返回 false。
+            </para>
+            <para>
+            Logger 工厂方法调用此方法来注册每个新创建的 Logger。 
+            </para>
+            <para>
+            如果日志配置文件存在，新的 Logger 将会被重新配置。
+            </para>
+            <para>
+            此应用程序应该保留其自身对 Logger 对象的引用，以避免它被作为无用信息收集。
+            LogManager 仅可能保留弱引用。
+            </para>
+            </remarks>
+            <param name="logger">新 Logger。</param>
+            <returns>如果成功注册参数 logger，则返回 true；如果该名称的 logger 已经存在，则返回 false。</returns>
+            <code>
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            public bool AddLogger(Logger logger)
+            </code>
+        </member>
+        <member name="M:Shinater.Logging.LogManager.GetLogger(System.String)">
+            <summary>
+            查找指定 Logger 的方法。 
+            </summary>
+            <param name="name">Logger 的名称。</param>
+            <returns>匹配的 Logger；如果未找到，则返回 null。</returns>
+            <code>
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            public Logger GetLogger(string name)
+            </code>
+        </member>
+        <member name="M:Shinater.Logging.LogManager.GetLoggerNames">
+            <summary>
+            获取已知 Logger 名称的数组。
+            </summary>
+            <remarks>
+            <para>
+            注：加载新类时可能动态添加 Logger。此方法仅报告当前已注册的 Logger。 
+            </para>
+            </remarks>
+            <returns>Logger 名称的数组。</returns>
+            <code>public string[] GetLoggerNames()</code>
+        </member>
+        <member name="M:Shinater.Logging.LogManager.ReadConfiguration">
+            <summary>
+            读取默认的日志配置文件（Logging.config），并重新配置所有已知的 Logger。
+            </summary>
+            <code>public void ReadConfiguration()</code>
+            <exception cref="T:System.Configuration.ConfigurationErrorsException">未能加载配置文件。</exception>
+        </member>
+        <member name="M:Shinater.Logging.LogManager.ReadConfiguration(System.Configuration.Configuration)">
+            <summary>
+            从给定的配置文件读取日志配置，并重新配置所有已知的 Logger。
+            </summary>
+            <remarks>
+            <para>
+            使用配置文件中的 appSettings 配置日志。
+            </para>
+            </remarks>
+            <param name="config">给定的配置文件。</param>
+            <code>public void ReadConfiguration(Configuration config)</code>
+        </member>
+        <member name="M:Shinater.Logging.LogManager.GetLoggingSetting``1(System.String)">
+            <summary>
+            获取日志配置中某配置元素的值。
+            </summary>
+            <typeparam name="T">配置元素的类型。</typeparam>
+            <param name="key">配置元素的键。</param>
+            <returns>经过类型转换的配置元素的值。</returns>
+            <exception cref="T:System.ArgumentNullException">配置元素的键为空。</exception>
+            <code>public T GetLoggingSetting&lt;T&gt;(string key)</code>
+        </member>
+        <member name="M:Shinater.Logging.LogManager.Reset">
+            <summary>
+            重置日志配置。
+            </summary>
+            <remarks>
+            <para>
+            移除并关闭所有已知 Logger 的全部 Handler，并将其 UseParentLevel 和 UseParentHandlers 属性设置为 true。
+            </para>
+            </remarks>
+            <code>public void Reset()</code>
+        </member>
+        <member name="T:Shinater.Logging.FileHandler">
+            <summary>
+            文件日志记录 Handler。
+            </summary>
+            <code>public class FileHandler:StreamHandler</code>
+            <remarks>
+            <para>
+            FileHandler 可以根据指定的文件名或文件名模式，写入指定的文件。
+            </para>
+            <para>
+            文件名模式由包括以下特殊组件的字符串组成，运行时会替换这些组件：
+            </para>
+            <list type="bullet">
+                <item>
+            		<description>"/"或"\" 本地路径名分隔符。</description>
+            	</item>
+                <item>
+            		<description>"%d" 转换为精确到日的当前时间，并且每天新建一个文件。</description>
+            	</item>
+            	<item>
+            		<description>"%M" 转换为精确到月的当前时间，并且每月新建一个文件。</description>
+            	</item>
+            	<item>
+            		<description>"%y" 转换为精确到年的当前时间，并且每年新建一个文件。</description>
+            	</item>
+            	<item>
+            		<description>"%ln" 转换为接收到的首个 LogRecord 对象的 LoggerName，有关细节请参见以下内容。</description>
+            	</item>
+            </list>
+            <para>
+            文件名模式中包含 "%ln" 时，输出文件并不会马上被创建。只有当 FileHandler 接收到首个 LogRecord 对象时，根据 LogRecord 的 LoggerName 组合文件名并创建文件。
+            注意，为了避免 LogRecord 通过 Logger 的父沿树传播时，造成多个 FileHandler 文件名冲突，应该将 Logger 的 UseParentHandlers 属性设置成 false。
+            </para>
+            <para>
+            如果对应的文件已存在并且 Append 设置为 false，或当前文件到达给定大小限制后，FileHandler 会将原来的文件重命名为原文件名+"."+当前时间+".bak"。
+            </para>
+            <para>
+            <strong>配置：</strong>存在配置文件的情况下，每个 FileHandler 都是使用以下设置执行初始化的。
+            </para>
+            <para>
+            <pre>
+            &lt;configuration&gt;
+                &lt;appSettings&gt;
+                    <span style="color:#999">&lt;!--为 Handler 指定默认的级别。--&gt;</span>
+                    &lt;add key="Shinater.Logging.FileHandler.Level" value="All" /&gt;
+                    <span style="color:#999">&lt;!--指定要使用的 Filter 的类的完全限定名。--&gt;</span>
+                    &lt;add key="Shinater.Logging.FileHandler.Filter" value="" /&gt;
+                    <span style="color:#999">&lt;!--指定要使用的 Formatter 的类的完全限定名。--&gt;</span>
+                    &lt;add key="Shinater.Logging.FileHandler.Formatter" value="Shinater.Logging.SimpleFormatter" /&gt;
+                    <span style="color:#999">&lt;!--指定要使用的字符集编码的名称。--&gt;</span>
+                    &lt;add key="Shinater.Logging.FileHandler.Encoding" value="UTF-8" /&gt;
+                    <span style="color:#999">&lt;!--指定是否应该在每次 Publish 消息之后，将缓冲消息刷新到文件。--&gt;</span>
+                    &lt;add key="Shinater.Logging.FileHandler.AutoFlush" value="true" /&gt;
+                    <span style="color:#999">&lt;!--为生成的输出文件名称指定一个模式。--&gt;</span>
+                    &lt;add key="Shinater.Logging.FileHandler.Pattern" value="%ln-%d.log" /&gt;
+                    <span style="color:#999">&lt;!--指定要写入到任意文件的近似最大量（以字节为单位）。如果该数为 0，则没有限制。--&gt;</span>
+                    &lt;add key="Shinater.Logging.FileHandler.Limit" value="0" /&gt;
+                    <span style="color:#999">&lt;!--指定是否应该将 FileHandler 追加到任何现有文件上。--&gt;</span>
+                    &lt;add key="Shinater.Logging.FileHandler.Append" value="false" /&gt;
+                &lt;/appSettings&gt;
+            &lt;/configuration&gt;
+            </pre>
+            </para>
+            </remarks>
+            <seealso cref="T:Shinater.Logging.StreamHandler"/>
+            <seealso cref="M:Shinater.Logging.Logger.AddHandler(Shinater.Logging.Handler)"/>
+            <seealso cref="M:Shinater.Logging.Logger.RemoveHandler(Shinater.Logging.Handler)"/>
+            <seealso cref="M:Shinater.Logging.Logger.GetHandlers"/>
+        </member>
+        <member name="M:Shinater.Logging.FileHandler.#ctor">
+            <summary>
+            仅通过 LogManager，使用日志配置信息创建 FileHandler。
+            </summary>
+            <code>public FileHandler()</code>
+            <exception cref="T:System.ArgumentException">文件名为空、只包含空白、或包含无效字符。</exception>
+            <exception cref="T:System.IO.IOException">如果打开文件时存在 IO 问题。</exception>
+            <exception cref="T:System.Security.SecurityException">调用方没有所要求的权限。</exception>
+        </member>
+        <member name="M:Shinater.Logging.FileHandler.#ctor(System.String)">
+            <summary>
+            初始化要写入给定文件名的 FileHandler。
+            </summary>
+            <remarks>
+            <para>
+            FileHandler 会通过 LogManager，使用日志配置信息（如果有的话）初始化其它属性。
+            </para>
+            </remarks>
+            <code>public FileHandler(string pattern)</code>
+            <param name="pattern">输出文件的名称或模式。</param>
+            <exception cref="T:System.ArgumentException">文件名为空、只包含空白、或包含无效字符。</exception>
+            <exception cref="T:System.IO.IOException">如果打开文件时存在 IO 问题。</exception>
+            <exception cref="T:System.Security.SecurityException">调用方没有所要求的权限。</exception>
+        </member>
+        <member name="M:Shinater.Logging.FileHandler.#ctor(System.String,System.Boolean)">
+            <summary>
+            初始化要写入给定文件名的 FileHandler，并指定是否追加文件。
+            </summary>
+            <remarks>
+            <para>
+            FileHandler 会通过 LogManager，使用日志配置信息（如果有的话）初始化其它属性。
+            </para>
+            </remarks>
+            <code>public FileHandler(string pattern, bool append)</code>
+            <param name="pattern">输出文件的名称或模式。</param>
+            <param name="append">是否追加文件。</param>
+            <exception cref="T:System.ArgumentException">文件名为空、只包含空白、或包含无效字符。</exception>
+            <exception cref="T:System.IO.IOException">如果打开文件时存在 IO 问题。</exception>
+            <exception cref="T:System.Security.SecurityException">调用方没有所要求的权限。</exception>
+        </member>
+        <member name="M:Shinater.Logging.FileHandler.#ctor(System.String,System.Int32,System.Boolean)">
+            <summary>
+            初始化要写入给定文件名的 FileHandler，并限制了文件大小和是否追加文件。
+            </summary>
+            <remarks>
+            <para>
+            已向某个文件写入给定限制的数据量（近似）后，则备份当前文件，并打开一个新文件。
+            </para>
+            <para>
+            FileHandler 会通过 LogManager，使用日志配置信息（如果有的话）初始化其它属性。
+            </para>
+            </remarks>
+            <code>public FileHandler(string pattern, int limit, bool append)</code>
+            <param name="pattern">输出文件的名称或模式。</param>
+            <param name="limit">输出文件的最大字节数。</param>
+            <param name="append">是否追加文件。</param>
+            <exception cref="T:System.ArgumentException">文件名为空、只包含空白、包含无效字符，或 limit &lt; 0。</exception>
+            <exception cref="T:System.IO.IOException">如果打开文件时存在 IO 问题。</exception>
+            <exception cref="T:System.Security.SecurityException">调用方没有所要求的权限。</exception>
+        </member>
+        <member name="M:Shinater.Logging.FileHandler.OpenFile">
+            <summary>
+            打开一个文件，如果文件已存在并且 Append 为 false，则重命名旧文件。
+            </summary>
+            <exception cref="T:System.ArgumentException"></exception>
+            <exception cref="T:System.Security.SecurityException"></exception>
+            <exception cref="T:System.UnauthorizedAccessException"></exception>
+            <exception cref="T:System.IO.IOException"></exception>
+            <exception cref="T:System.IO.PathTooLongException"></exception>
+            <exception cref="T:System.NotSupportedException"></exception>
+        </member>
+        <member name="M:Shinater.Logging.FileHandler.Publish(Shinater.Logging.LogRecord)">
+            <summary>
+            发布 <see cref="T:Shinater.Logging.LogRecord"/>。
+            </summary>
+            <code>
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            public override void Publish(LogRecord record)
+            </code>
+            <param name="record">对日志事件的描述。</param>
+        </member>
+        <member name="T:Shinater.Logging.LogRecord">
+            <summary>
+            LogRecord 对象用于在日志框架和单个日志 <see cref="T:Shinater.Logging.Handler"/> 之间传递日志请求。 
+            </summary>
+            <code>
+            [Serializable]
+            public class LogRecord
+            </code>
+            <seealso cref="M:Shinater.Logging.Logger.Log(Shinater.Logging.LogRecord)"/>
+            <seealso cref="M:Shinater.Logging.IFilter.IsLoggable(Shinater.Logging.LogRecord)"/>
+            <seealso cref="M:Shinater.Logging.Handler.Publish(Shinater.Logging.LogRecord)"/>
+        </member>
+        <member name="M:Shinater.Logging.LogRecord.#ctor(Shinater.Logging.Level,System.String)">
+            <summary>
+            用给定级别和消息值构造 LogRecord。
+            </summary>
+            <code>public LogRecord(Level level, string message)</code>
+            <param name="level">日志级别值</param>
+            <param name="message">原始的非本地化日志消息</param>
+            <remarks>
+            <para>
+            将当前时间作为日志消息产生时间，通过分析调用堆栈来自动推导源方法名和源类名。
+            </para>
+            </remarks>
+        </member>
+        <member name="P:Shinater.Logging.LogRecord.LoggerName">
+            <summary>
+            获取或设置日志消息关联的 <see cref="T:Shinater.Logging.Logger"/> 名称 
+            </summary>
+            <value>日志消息关联的 <see cref="T:Shinater.Logging.Logger"/> 名称</value>
+            <code>public string LoggerName { get; set; }</code>
+        </member>
+        <member name="P:Shinater.Logging.LogRecord.Level">
+            <summary>
+            获取或设置日志消息的级别。
+            </summary>
+            <value>日志消息的级别。</value>
+            <code>public Level Level { get; set; }</code>
+        </member>
+        <member name="P:Shinater.Logging.LogRecord.Message">
+            <summary>
+            获取或设置本地化或格式化之前的“原始”日志消息。
+            </summary>
+            <value>本地化或格式化之前的“原始”日志消息。</value>
+            <code>public string Message { get; set; }</code>
+        </member>
+        <member name="P:Shinater.Logging.LogRecord.Parameters">
+            <summary>
+            获取或设置日志消息的参数。 
+            </summary>
+            <value>日志消息参数。如果没有参数，则可能为 null。</value>
+            <code>public object[] Parameters { get; set; }</code>
+        </member>
+        <member name="P:Shinater.Logging.LogRecord.DateTime">
+            <summary>
+            获取日志消息产生时间。
+            </summary>
+            <value>日志消息产生时间。</value>
+            <code>public DateTime DateTime { get; private set; }</code>
+        </member>
+        <member name="P:Shinater.Logging.LogRecord.SourceMethodName">
+            <summary>
+            获取发出日志请求的方法的名称。 
+            </summary>
+            <value>日志请求的方法的名称。</value>
+            <code>public string SourceMethodName { get; private set; }</code>
+        </member>
+        <member name="P:Shinater.Logging.LogRecord.SourceTypeName">
+            <summary>
+            获取发出日志请求的类的名称。 
+            </summary>
+            <value>日志请求的类的名称。</value>
+            <code>public string SourceTypeName { get; private set; }</code>
+        </member>
+        <member name="T:Shinater.Logging.Level">
+             <summary>
+            指定一组可用来控制日志输出的标准日志级别。
+             </summary>
+             <code>public enum Level</code>
+             <remarks>
+             <para>
+             各级别按降序排列如下： 
+             </para>
+             <list type="bullet">
+                 <item>
+            			<description>Severe（最高值）</description>
+            		</item>
+            		<item>
+            			<description>Warning</description>
+            		</item>
+            		<item>
+            			<description>Info</description>
+            		</item>
+            		<item>
+            			<description>Config</description>
+            		</item>
+            		<item>
+            			<description>Fine</description>
+            		</item>
+            		<item>
+            			<description>Finest</description>
+            		</item>
+            		<item>
+            			<description>Finest（最低值）</description>
+            		</item>
+             </list>
+             <para>
+             此外，级别 OFF 可用来关闭日志记录，级别 ALL 可用来启用所有消息的日志记录。
+             </para>
+             <para>
+             在给定的级别上启用日志记录也就启用了所有较高级别的日志记录。
+             </para>
+             </remarks>
+             <seealso cref="P:Shinater.Logging.Logger.Level"/>
+             <seealso cref="M:Shinater.Logging.Logger.IsLoggable(Shinater.Logging.Level)"/>
+             <seealso cref="M:Shinater.Logging.Logger.Log(Shinater.Logging.Level,System.String)"/>
+        </member>
+        <member name="F:Shinater.Logging.Level.Off">
+            <summary>
+            指示可用于关闭日志记录的特殊级别。
+            </summary>
+        </member>
+        <member name="F:Shinater.Logging.Level.Severe">
+            <summary>
+            指示严重失败的消息级别。
+            通常，Severe 消息应该描述相当重要的事件，这些事件会阻止正常程序的执行。
+            </summary>
+        </member>
+        <member name="F:Shinater.Logging.Level.Warning">
+            <summary>
+            指示潜在问题的消息级别。 
+            </summary>
+        </member>
+        <member name="F:Shinater.Logging.Level.Info">
+            <summary>
+            指示相当重要的消息级别。
+            </summary>
+        </member>
+        <member name="F:Shinater.Logging.Level.Config">
+            <summary>
+            指示用于静态配置消息的消息级别。
+            Config 消息提供各种静态配置信息，并协助调试那些与特定配置有关的问题。
+            </summary>
+        </member>
+        <member name="F:Shinater.Logging.Level.Fine">
+            <summary>
+            指示提供跟踪信息的消息级别。 
+            Fine、Finer 和 Finest 都适合用于相对详细的跟踪。
+            </summary>
+        </member>
+        <member name="F:Shinater.Logging.Level.Finer">
+            <summary>
+            指示一条相当详细的跟踪消息。
+            在默认情况下，对于输入、返回或抛出异常的日志记录调用在此级别进行跟踪。
+            </summary>
+        </member>
+        <member name="F:Shinater.Logging.Level.Finest">
+            <summary>
+            指示一条最详细的跟踪消息。
+            </summary>
+        </member>
+        <member name="F:Shinater.Logging.Level.All">
+            <summary>
+            指示应该记录所有消息。
+            </summary>
+        </member>
+        <member name="T:Shinater.Properties.Logging">
+            <summary>
+              强类型资源类，用于查找本地化字符串等。
+            </summary>
+        </member>
+        <member name="P:Shinater.Properties.Logging.ResourceManager">
+            <summary>
+              返回此类使用的缓存 ResourceManager 实例。
+            </summary>
+        </member>
+        <member name="P:Shinater.Properties.Logging.Culture">
+            <summary>
+              为使用此强类型资源类的所有资源查找
+              重写当前线程的 CurrentUICulture 属性。
+            </summary>
+        </member>
+        <member name="P:Shinater.Properties.Logging.All">
+            <summary>
+              查找类似 All 的本地化字符串。
+            </summary>
+        </member>
+        <member name="P:Shinater.Properties.Logging.Config">
+            <summary>
+              查找类似 Config 的本地化字符串。
+            </summary>
+        </member>
+        <member name="P:Shinater.Properties.Logging.Fine">
+            <summary>
+              查找类似 Fine 的本地化字符串。
+            </summary>
+        </member>
+        <member name="P:Shinater.Properties.Logging.Finer">
+            <summary>
+              查找类似 Finer 的本地化字符串。
+            </summary>
+        </member>
+        <member name="P:Shinater.Properties.Logging.Finest">
+            <summary>
+              查找类似 Finest 的本地化字符串。
+            </summary>
+        </member>
+        <member name="P:Shinater.Properties.Logging.Info">
+            <summary>
+              查找类似 Info 的本地化字符串。
+            </summary>
+        </member>
+        <member name="P:Shinater.Properties.Logging.Message_Error_LogRecord_Publis">
+            <summary>
+              查找类似 An exception occurred while publishing LogRecord to the output Handler {{0}}. The Handler be forced to close. 的本地化字符串。
+            </summary>
+        </member>
+        <member name="P:Shinater.Properties.Logging.Message_Error_Type_Create">
+            <summary>
+              查找类似 Can&apos;t create an instance of &quot;{0}&quot;,{1}:{2} 的本地化字符串。
+            </summary>
+        </member>
+        <member name="P:Shinater.Properties.Logging.Off">
+            <summary>
+              查找类似 Off 的本地化字符串。
+            </summary>
+        </member>
+        <member name="P:Shinater.Properties.Logging.Severe">
+            <summary>
+              查找类似 Severe 的本地化字符串。
+            </summary>
+        </member>
+        <member name="P:Shinater.Properties.Logging.Warning">
+            <summary>
+              查找类似 Warning 的本地化字符串。
+            </summary>
+        </member>
+    </members>
+</doc>
